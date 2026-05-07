@@ -7,6 +7,9 @@ export interface FlowNodeData {
   level: number;
   hasChildren: boolean;
   collapsed: boolean;
+  highlighted?: boolean;
+  dimmed?: boolean;
+  themeColor?: string;
 }
 
 export interface MindMapGraph {

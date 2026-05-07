@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 import type { MindMapResult } from "@/types/mindmap";
 
 interface Props {
-  onResult: (result: MindMapResult, fileName: string) => void;
+  onResult: (result: MindMapResult, fileName: string, file: File) => void;
   disabled?: boolean;
   provider?: string | null;
+  defaultFile?: File;
 }
 
 type UploadState =
@@ -21,7 +22,7 @@ type UploadState =
 
 const MAX_MB = 15;
 
-export function PdfUploader({ onResult, disabled, provider }: Props) {
+export function PdfUploader({ onResult, disabled, provider, defaultFile }: Props) {
   const [state, setState] = React.useState<UploadState>({ status: "idle" });
   const xhrRef = React.useRef<XMLHttpRequest | null>(null);
   const providerRef = React.useRef<string | null | undefined>(provider);
@@ -55,7 +56,7 @@ export function PdfUploader({ onResult, disabled, provider }: Props) {
           try {
             const result = JSON.parse(xhr.responseText) as MindMapResult;
             setState({ status: "idle" });
-            onResult(result, file.name);
+            onResult(result, file.name, file);
           } catch {
             setState({ status: "error", message: "Malformed response from server" });
           }
@@ -86,6 +87,12 @@ export function PdfUploader({ onResult, disabled, provider }: Props) {
     },
     [onResult],
   );
+
+  // Auto-trigger upload when a defaultFile is provided (e.g. regenerate)
+  React.useEffect(() => {
+    if (defaultFile) upload(defaultFile);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onDrop = React.useCallback(
     (accepted: File[], rejected: FileRejection[]) => {

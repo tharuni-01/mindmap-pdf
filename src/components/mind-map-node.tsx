@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Handle, Position, type NodeProps } from "reactflow";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { FlowNodeData } from "@/lib/layout";
 
@@ -11,6 +11,8 @@ interface MindMapNodeProps extends NodeProps<FlowNodeData> {}
 interface CallbackContextValue {
   onToggle: (id: string) => void;
   onRename: (id: string, label: string) => void;
+  onAddChild: (id: string) => void;
+  onDeleteNode: (id: string) => void;
 }
 
 export const NodeCallbackContext = React.createContext<CallbackContextValue | null>(null);
@@ -38,16 +40,26 @@ export function MindMapNodeView({ id, data, isConnectable }: MindMapNodeProps) {
 
   const isRoot = data.level === 0;
 
+  const themeStyle: React.CSSProperties | undefined = data.themeColor
+    ? {
+        borderColor: `${data.themeColor}99`,
+        backgroundColor: `${data.themeColor}18`,
+      }
+    : undefined;
+
   return (
     <div
       className={cn(
-        "group relative rounded-lg border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md",
+        "group relative rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
         isRoot
           ? "border-primary/40 bg-primary/5 px-4 py-3 min-w-[220px]"
           : data.level === 1
             ? "border-foreground/20 px-3 py-2 min-w-[200px]"
             : "border-foreground/10 px-3 py-1.5 min-w-[180px]",
+        data.highlighted && "ring-2 ring-yellow-400 ring-offset-1",
+        data.dimmed && "opacity-30",
       )}
+      style={themeStyle}
     >
       <Handle
         type="target"
@@ -61,6 +73,28 @@ export function MindMapNodeView({ id, data, isConnectable }: MindMapNodeProps) {
         isConnectable={isConnectable}
         className="!bg-muted-foreground/40"
       />
+
+      {/* Add / delete buttons shown on hover */}
+      <div className="absolute -top-2 -right-2 hidden group-hover:flex gap-1 z-10">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); ctx?.onAddChild(id); }}
+          className="flex size-5 items-center justify-center rounded-full bg-green-500 text-white shadow hover:bg-green-600"
+          title="Add child node"
+        >
+          <Plus className="size-3" />
+        </button>
+        {!isRoot && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); ctx?.onDeleteNode(id); }}
+            className="flex size-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow hover:opacity-80"
+            title="Delete node"
+          >
+            <Trash2 className="size-3" />
+          </button>
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
         {data.hasChildren ? (
