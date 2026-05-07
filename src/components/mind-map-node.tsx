@@ -50,12 +50,12 @@ export function MindMapNodeView({ id, data, isConnectable }: MindMapNodeProps) {
   return (
     <div
       className={cn(
-        "group relative rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
+        "group relative rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md w-full",
         isRoot
-          ? "border-primary/40 bg-primary/5 px-4 py-3 min-w-[220px]"
+          ? "border-primary/40 bg-primary/5 px-4 py-3"
           : data.level === 1
-            ? "border-foreground/20 px-3 py-2 min-w-[200px]"
-            : "border-foreground/10 px-3 py-1.5 min-w-[180px]",
+            ? "border-foreground/20 px-3 py-2"
+            : "border-foreground/10 px-3 py-1.5",
         data.highlighted && "ring-2 ring-yellow-400 ring-offset-1",
         data.dimmed && "opacity-30",
       )}
@@ -133,13 +133,13 @@ export function MindMapNodeView({ id, data, isConnectable }: MindMapNodeProps) {
                 setEditing(false);
               }
             }}
-            className="w-full bg-transparent text-sm font-medium outline-none ring-1 ring-ring rounded px-1 -mx-1"
+            className="min-w-0 w-full bg-transparent text-sm font-medium outline-none ring-1 ring-ring rounded px-1 -mx-1"
           />
         ) : (
           <span
             onDoubleClick={() => setEditing(true)}
             className={cn(
-              "select-none text-sm leading-snug",
+              "min-w-0 select-none text-sm leading-snug break-words",
               isRoot ? "font-semibold" : "font-medium",
             )}
             title="Double-click to rename"

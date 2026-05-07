@@ -21,10 +21,25 @@ export interface MindMapGraph {
   children: Record<string, string[]>;
 }
 
-const NODE_WIDTH = 220;
-const NODE_HEIGHT = 56;
+const MAX_NODE_WIDTH = 260;
 const RANK_SEP = 80;
-const NODE_SEP = 24;
+const NODE_SEP = 32;
+
+// Estimate node dimensions based on label length so dagre spaces nodes correctly.
+function estimateNodeDimensions(label: string, level: number): { width: number; height: number } {
+  const ICON_W = 28;       // size-5 icon (20px) + gap-2 (8px)
+  const PADDING_X = level === 0 ? 32 : 24;  // px-4 vs px-3
+  const PADDING_Y = level === 0 ? 24 : level === 1 ? 16 : 12; // py-3 vs py-2 vs py-1.5
+  const CHAR_W = 7.5;      // approximate px per character at text-sm
+  const LINE_H = 20;       // text-sm leading-snug line height
+
+  const availableTextPx = MAX_NODE_WIDTH - PADDING_X - ICON_W;
+  const textPx = label.length * CHAR_W;
+  const lines = Math.max(1, Math.ceil(textPx / availableTextPx));
+  const height = PADDING_Y + lines * LINE_H + 4;
+
+  return { width: MAX_NODE_WIDTH, height };
+}
 
 // Convert the hierarchical mindmap into a flat list of nodes/edges, then
 // compute left-to-right tree positions with dagre.
@@ -88,7 +103,8 @@ function layoutWithDagre(
   g.setGraph({ rankdir: "LR", ranksep: RANK_SEP, nodesep: NODE_SEP });
 
   for (const node of nodes) {
-    g.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+    const { width, height } = estimateNodeDimensions(node.data.label, node.data.level);
+    g.setNode(node.id, { width, height });
   }
   for (const edge of edges) {
     g.setEdge(edge.source, edge.target);
@@ -96,12 +112,14 @@ function layoutWithDagre(
   dagre.layout(g);
 
   return nodes.map((node) => {
+    const { width, height } = estimateNodeDimensions(node.data.label, node.data.level);
     const pos = g.node(node.id);
     return {
       ...node,
-      position: { x: pos.x - NODE_WIDTH / 2, y: pos.y - NODE_HEIGHT / 2 },
+      position: { x: pos.x - width / 2, y: pos.y - height / 2 },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
+      style: { width },
     };
   });
 }
