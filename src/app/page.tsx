@@ -65,7 +65,7 @@ export default function HomePage() {
           <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Brain className="size-5" />
           </div>
-          <span className="text-base font-semibold">Mind Map PDF</span>
+          <span className="text-base font-semibold">Tharuni&apos;s Mind Map PDF</span>
         </div>
         <ThemeToggle />
       </header>

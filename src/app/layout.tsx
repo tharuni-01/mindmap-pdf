@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Mind Map PDF",
+  title: "Tharuni's Mind Map PDF",
   description: "Turn PDF documents into interactive mind maps.",
 };
 
